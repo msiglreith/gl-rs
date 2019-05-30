@@ -243,8 +243,8 @@ fn merge_map(a: &mut BTreeMap<String, Vec<String>>, b: BTreeMap<String, Vec<Stri
             Entry::Vacant(ent) => {
                 ent.insert(v);
             },
+            }
         }
-    }
 }
 
 #[derive(Clone)]
@@ -320,7 +320,7 @@ trait Parse: Sized + Iterator<Item = ParseEvent> {
                     let enums_type = get_attribute(&attributes, "type");
                     if let Some(group) = enums_group.and_then(|name| groups.get_mut(&name)) {
                         group.enums_type = enums_type;
-                    }
+                }
                 },
 
                 // add command namespace
@@ -336,13 +336,13 @@ trait Parse: Sized + Iterator<Item = ParseEvent> {
                 },
 
                 ParseEvent::Start(ref name, _) if name == "extensions" => loop {
-                    match self.next().unwrap() {
-                        ParseEvent::Start(ref name, ref attributes) if name == "extension" => {
-                            extensions.push(Extension::convert(&mut self, &attributes));
+                        match self.next().unwrap() {
+                            ParseEvent::Start(ref name, ref attributes) if name == "extension" => {
+                                extensions.push(Extension::convert(&mut self, &attributes));
                         },
-                        ParseEvent::End(ref name) if name == "extensions" => break,
-                        event => panic!("Unexpected message {:?}", event),
-                    }
+                            ParseEvent::End(ref name) if name == "extensions" => break,
+                            event => panic!("Unexpected message {:?}", event),
+                        }
                 },
 
                 // finished building the registry
@@ -390,12 +390,11 @@ trait Parse: Sized + Iterator<Item = ParseEvent> {
 
         for extension in &extensions {
             if filter.extensions.contains(&extension.name) {
-                if !extension.supported.contains(&filter.api) {
-                    panic!(
-                        "Requested {}, which doesn't support the {} API",
-                        extension.name, filter.api
-                    );
-                }
+                // if !extension.supported.contains(&filter.api) {
+                //     panic!("Requested {}, which doesn't support the {} API",
+                //            extension.name,
+                //            filter.api);
+                // }
                 for require in &extension.requires {
                     desired_enums.extend(require.enums.iter().map(|x| x.clone()));
                     desired_cmds.extend(require.commands.iter().map(|x| x.clone()));
@@ -468,8 +467,8 @@ trait Parse: Sized + Iterator<Item = ParseEvent> {
 
     fn consume_two<'a, T: FromXml, U: FromXml>(
         &mut self,
-        one: &'a str,
-        two: &'a str,
+                                               one: &'a str,
+                                               two: &'a str,
         end: &'a str,
     ) -> (Vec<T>, Vec<U>) {
         debug!("consume_two: looking for {} and {} until {}", one, two, end);
@@ -553,7 +552,7 @@ trait Parse: Sized + Iterator<Item = ParseEvent> {
         match api {
             Api::Egl => make_egl_enum(ident, ty, value, alias),
             _ => make_enum(ident, ty, value, alias),
-        }
+    }
     }
 
     fn consume_groups(&mut self, api: Api) -> BTreeMap<String, Group> {
@@ -608,8 +607,8 @@ trait Parse: Sized + Iterator<Item = ParseEvent> {
                             Entry::Vacant(ent) => {
                                 ent.insert(vec![new.proto.ident.clone()]);
                             },
+                            }
                         }
-                    }
                     cmds.push(new);
                 },
                 // finished building the namespace
@@ -647,9 +646,9 @@ trait Parse: Sized + Iterator<Item = ParseEvent> {
                 },
                 ParseEvent::Start(ref name, ref attributes) if name == "glx" => {
                     glx = Some(GlxOpcode {
-                        opcode: get_attribute(&attributes, "opcode").unwrap(),
-                        name: get_attribute(&attributes, "name"),
-                    });
+                                   opcode: get_attribute(&attributes, "opcode").unwrap(),
+                                   name: get_attribute(&attributes, "name"),
+                               });
                     self.consume_end_element("glx");
                 },
                 ParseEvent::End(ref name) if name == "command" => break,
@@ -1141,8 +1140,8 @@ mod tests {
         fn test_cast_0() {
             let e = parse::make_enum(
                 "FOO".to_string(),
-                None,
-                "((EGLint)-1)".to_string(),
+                                     None,
+                                     "((EGLint)-1)".to_string(),
                 Some("BAR".to_string()),
             );
             assert_eq!(e.ident, "FOO");
@@ -1154,8 +1153,8 @@ mod tests {
         fn test_cast_1() {
             let e = parse::make_enum(
                 "FOO".to_string(),
-                None,
-                "((EGLint)(-1))".to_string(),
+                                     None,
+                                     "((EGLint)(-1))".to_string(),
                 Some("BAR".to_string()),
             );
             assert_eq!(e.ident, "FOO");
@@ -1167,8 +1166,8 @@ mod tests {
         fn test_no_type() {
             let e = parse::make_enum(
                 "FOO".to_string(),
-                None,
-                "value".to_string(),
+                                     None,
+                                     "value".to_string(),
                 Some("BAR".to_string()),
             );
             assert_eq!(e.ident, "FOO");
@@ -1182,8 +1181,8 @@ mod tests {
         fn test_u() {
             let e = parse::make_enum(
                 "FOO".to_string(),
-                Some("u".to_string()),
-                String::new(),
+                                     Some("u".to_string()),
+                                     String::new(),
                 None,
             );
             assert_eq!(e.ty, "GLuint");
@@ -1193,8 +1192,8 @@ mod tests {
         fn test_ull() {
             let e = parse::make_enum(
                 "FOO".to_string(),
-                Some("ull".to_string()),
-                String::new(),
+                                     Some("ull".to_string()),
+                                     String::new(),
                 None,
             );
             assert_eq!(e.ty, "GLuint64");
@@ -1205,8 +1204,8 @@ mod tests {
         fn test_unknown_type() {
             parse::make_enum(
                 "FOO".to_string(),
-                Some("blargh".to_string()),
-                String::new(),
+                             Some("blargh".to_string()),
+                             String::new(),
                 None,
             );
         }
